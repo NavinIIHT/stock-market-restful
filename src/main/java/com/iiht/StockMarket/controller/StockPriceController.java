@@ -41,27 +41,31 @@ public class StockPriceController {
 	//-------------------------------------------------------------------------------------------------------------------------------
 	@PostMapping(value="/addStock")																						// 2. WORKING
 	public ResponseEntity<StockPriceDetailsDTO> addStockDetails(@Valid @RequestBody StockPriceDetailsDTO stockPriceDetailsDTO, BindingResult bindingResult) throws InvalidStockException {
-		if(bindingResult.hasErrors())
+		System.out.println("Called");
+		if(bindingResult.hasErrors()) {
 			throw new InvalidStockException("Invalid Stock Details!!!");
+		}
 		else
 			return new ResponseEntity<StockPriceDetailsDTO>(stockMarketService.saveStockPriceDetails(stockPriceDetailsDTO), HttpStatus.OK);
 	}
 	//-------------------------------------------------------------------------------------------------------------------------------
 	@DeleteMapping(value = "/deleteStock/{companyCode}")																// 3. WORKING
 	public ResponseEntity<List<StockPriceDetailsDTO>> deleteStockByCompanyCode(@PathVariable Long companyCode) {
-		if(stockMarketService.deleteStock(companyCode) == null)
+		List<StockPriceDetailsDTO> list = stockMarketService.deleteStock(companyCode);
+		if( list == null)
 			throw new StockNotFoundException("Invalid Company Code!! Please enter valid companyCode...");
 		else	
-			return new ResponseEntity<List<StockPriceDetailsDTO>>(stockMarketService.deleteStock(companyCode), HttpStatus.OK);		
+			return new ResponseEntity<List<StockPriceDetailsDTO>>(list, HttpStatus.OK);		
 		
 	}
 	//-------------------------------------------------------------------------------------------------------------------------------
 	@GetMapping(value = "/getStockByCompanyCode/{companyCode}")															// 4. WORKING
 	public ResponseEntity<List<StockPriceDetailsDTO>> getStockByCompanyCode(@PathVariable Long companyCode) {
-		if(stockMarketService.getStockByCode(companyCode) == null)
+		List<StockPriceDetailsDTO> list = stockMarketService.getStockByCode(companyCode);
+		if( list == null)
 			throw new StockNotFoundException("Invalid Company Code!! Please enter valid companyCode...");
 		else
-			return new ResponseEntity<List<StockPriceDetailsDTO>>(stockMarketService.getStockByCode(companyCode), HttpStatus.OK);
+			return new ResponseEntity<List<StockPriceDetailsDTO>>(list, HttpStatus.OK);
 	}
 	//-------------------------------------------------------------------------------------------------------------------------------
 	@GetMapping(value = "/getStockPriceIndex/{companyCode}/{startDate}/{endDate}")										// 5. WORKING

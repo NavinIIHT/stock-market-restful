@@ -8,14 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -25,16 +20,18 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.iiht.StockMarket.controller.CompanyInfoController;
+import com.iiht.StockMarket.controller.StockPriceController;
 import com.iiht.StockMarket.dto.CompanyDetailsDTO;
 import com.iiht.StockMarket.dto.StockPriceDetailsDTO;
+import com.iiht.StockMarket.exception.StockNotFoundException;
 import com.iiht.StockMarket.services.CompanyInfoService;
 import com.iiht.StockMarket.services.StockMarketService;
 import com.iiht.StockMarket.utilTestClass.MasterData;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@WebMvcTest({CompanyInfoService.class, StockMarketService.class})
-@RunWith(JUnitPlatform.class)
+
+@WebMvcTest({CompanyInfoController.class, StockPriceController.class})
+@AutoConfigureMockMvc
 public class ExceptionTests {
 
 	@Autowired
@@ -64,7 +61,7 @@ public class ExceptionTests {
 				
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		yakshaAssert(currentTest(), (result.getResponse().getStatus() == HttpStatus.BAD_REQUEST.value() ? false : true), exceptionTestFile);
+		yakshaAssert(currentTest(), (result.getResponse().getStatus() == HttpStatus.BAD_REQUEST.value() ? true : false), exceptionTestFile);
 	}
 	//--------------------------------------------------------------------------------------------
 	@Test
@@ -81,10 +78,10 @@ public class ExceptionTests {
 				.accept(MediaType.APPLICATION_JSON);
 				
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-
-		//System.out.println(result.getResponse().getStatus());
+		
+		
 		// changed 'true : false' to 'false : true' - 29-09-21
-		yakshaAssert(currentTest(), result.getResponse().getStatus() == 400 ? false : true, exceptionTestFile);		
+		yakshaAssert(currentTest(), result.getResponse().getStatus() == 400 ? true : false, exceptionTestFile);		
 	}
 	//--------------------------------------------------------------------------------------------
 	@Test
@@ -98,7 +95,7 @@ public class ExceptionTests {
 				
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		//System.out.println(result.getResponse().getStatus());
+		
 		yakshaAssert(currentTest(), result.getResponse().getStatus() == 404 ? true : false, exceptionTestFile);		
 	}
 	//--------------------------------------------------------------------------------------------
@@ -113,30 +110,14 @@ public class ExceptionTests {
 				
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		//System.out.println(result.getResponse().getStatus());
+		
 		yakshaAssert(currentTest(), result.getResponse().getStatus() == 404 ? true : false, exceptionTestFile);		
 	}	
 
 	//====================================================================================================================
 	//			2. Exceptions tests regarding Stock Operations
 	//====================================================================================================================	
-	@Test
-	public void testStockForExceptionUponAddingNewStock() throws Exception
-	{
-		StockPriceDetailsDTO stockDto = MasterData.getStockPriceDetailsDTO();
-
-		Mockito.when(stockMarketService.saveStockPriceDetails(null)).thenReturn(stockDto);
-				
-		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/stock/newStock")
-				.content(MasterData.asJsonString(MasterData.getStockPriceDetailsDTO()))
-				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON);
-				
-		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-
-		// changed 'true : false' to 'false : true' - 29-09-21
-		yakshaAssert(currentTest(),	(result.getResponse().getStatus() == HttpStatus.BAD_REQUEST.value() ? false : true), exceptionTestFile);
-	}		
+	
 	//--------------------------------------------------------------------------------------------
 	@Test
 	public void testStockForExceptionUponAddingStockWithNullValue() throws Exception
@@ -153,9 +134,8 @@ public class ExceptionTests {
 				
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		//System.out.println(result.getResponse().getStatus());
-		// changed 'true : false' to 'false : true' - 29-09-21
-		yakshaAssert(currentTest(), result.getResponse().getStatus() == 400 ? false : true, exceptionTestFile);		
+		
+		yakshaAssert(currentTest(), result.getResponse().getStatus() == 400 ? true : false, exceptionTestFile);		
 	}
 	//--------------------------------------------------------------------------------------------
 	@Test
@@ -169,16 +149,16 @@ public class ExceptionTests {
 				
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		//System.out.println(result.getResponse().getStatus());
+		
 		yakshaAssert(currentTest(), result.getResponse().getStatus() == 404 ? true : false, exceptionTestFile);		
 	}
 	//--------------------------------------------------------------------------------------------
 	@Test
-	public void testStockForExceptionUponDeletingStockByNullValue() throws Exception
+	public void testStockForExceptionUponDeletingStockByInvalidValue() throws Exception
 	{
 		List<StockPriceDetailsDTO> stockList = new ArrayList<StockPriceDetailsDTO>();
 
-		Mockito.when(stockMarketService.deleteStock(2L)).thenReturn(stockList);
+		Mockito.when(stockMarketService.deleteStock(2L)).thenThrow(new StockNotFoundException("Stock with Id - 2 not found"));
 				
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.delete("/stock/deleteStock/2")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -186,7 +166,7 @@ public class ExceptionTests {
 				
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
-		//System.out.println(result.getResponse().getStatus());
+		
 		yakshaAssert(currentTest(), result.getResponse().getStatus() == 404 ? true : false, exceptionTestFile);		
 	}	
 }

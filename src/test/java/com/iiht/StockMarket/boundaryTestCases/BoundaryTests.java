@@ -48,15 +48,7 @@ public class BoundaryTests implements Serializable
     //=============================================================================================
 	//			1. CompanyDetiails - Validating length of all properties
     //=============================================================================================
-	@Test
-	public void testCompanyCodeLength() throws Exception 
-	{
-		CompanyDetailsDTO companyDetails = MasterData.getCompanyDetailsDTO();
-		companyDetails.setCompanyCode(null);
-		Set<ConstraintViolation<CompanyDetailsDTO>> violations = validator.validate(companyDetails);
-		// changed 'true : false' to 'false : true' - 29-09-21
-		yakshaAssert(currentTest(), !violations.isEmpty()? false : true, boundaryTestFile);
-	}
+	
 	//---------------------------------------------------------------------------------------------	
 	@Test
 	public void testStockExchangeLength() throws Exception 
@@ -115,21 +107,15 @@ public class BoundaryTests implements Serializable
     //=============================================================================================
 	//			1.1 CompanyDetiails - Post Company Details Success or Failure
     //=============================================================================================
-    @Test
-    public void testPostCompanyDetailsSuccess() throws IOException 
-    {
-    	CompanyDetailsDTO companyDetails = MasterData.getCompanyDetailsDTO();
-        Set<ConstraintViolation<CompanyDetailsDTO>> violations = validator.validate(companyDetails);
-	    yakshaAssert(currentTest(), violations.isEmpty() ? true : false, boundaryTestFile);	    
-    }
+    
     //----------------------------------------------------------------------------------------------
     @Test
     public void testPostCompanyDetailsFailed() throws IOException {
     	CompanyDetailsDTO companyDetails = MasterData.getCompanyDetailsDTO();
-    	companyDetails.setCompanyCode(null);
+    	companyDetails.setCompanyName(null);
         Set<ConstraintViolation<CompanyDetailsDTO>> violations = validator.validate(companyDetails);
 		// changed 'true : false' to 'false : true' - 29-09-21
-	    yakshaAssert(currentTest(), !violations.isEmpty() ? false : true, boundaryTestFile);
+	    yakshaAssert(currentTest(), !violations.isEmpty() ? true : false, boundaryTestFile);
     }
 
     //=============================================================================================
@@ -165,13 +151,7 @@ public class BoundaryTests implements Serializable
     //=============================================================================================
 	//			2.1 StockPriceDetiails - Post Stock Price Details Success or Failure
     //=============================================================================================
-    @Test
-    public void testPostStockPriceDetailsSuccess() throws IOException {
-    	StockPriceDetailsDTO stockPrice = MasterData.getStockPriceDetailsDTO();
-        Set<ConstraintViolation<StockPriceDetailsDTO>> violations = validator.validate(stockPrice);
-		// changed 'true : false' to 'false : true' - 29-09-21
-	    yakshaAssert(currentTest(), violations.isEmpty() ? false : true, boundaryTestFile);
-    }
+    
     //----------------------------------------------------------------------------------------------
     @Test
     public void testPostStockPriceDetailsFailed() throws IOException {

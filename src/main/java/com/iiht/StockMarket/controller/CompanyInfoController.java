@@ -30,19 +30,15 @@ public class CompanyInfoController {
 	@Autowired
 	private CompanyInfoService companyInfoService;
 
-	//-------------------------------------------------------------------------------------------------------------------------------
-	// SERVICE OPERATIONS
-	//-------------------------------------------------------------------------------------------------------------------------------
-	@RequestMapping (value = "/home")																					// 1. WORKING
- 	public String landingPage() {
- 		return "Welcome to StockMarket Application - Dealing with Stock Market Business - Companies and Stock Price Index.";
- 	}
+	
 	//-------------------------------------------------------------------------------------------------------------------------------
 	@PostMapping(value="/addCompany")																					// 3. WORKING
 	public ResponseEntity<CompanyDetailsDTO> addCompanyDetails(@Valid @RequestBody CompanyDetailsDTO companyDetailsDTO, BindingResult bindingResult) throws InvalidCompanyException {
-
-		if(bindingResult.hasErrors())
+		System.out.println(bindingResult.hasErrors());
+		if(bindingResult.hasErrors()) {
+			
 			throw new InvalidCompanyException("Invalid Company Details!!!");
+		}
 		else
 			return new ResponseEntity<CompanyDetailsDTO>(companyInfoService.saveCompanyDetails(companyDetailsDTO), HttpStatus.OK);
 	}
